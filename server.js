@@ -4,7 +4,7 @@ const app = express();
 
 app.use(express.json());
 
-// Puxa a senha de segurança direto das configurações do Render
+// Resgata a senha das configurações do Render ou usa a padrão
 const CHAVE_SECRETA = process.env.SECRET_KEY || "EB_THE_FOX_SENHA_123"; 
 
 async function startBot() {
@@ -16,15 +16,17 @@ async function startBot() {
     }
 }
 
+// Rota de promoção protegida por chave secreta
 app.post('/promote', async (req, res) => {
     const { UserId, GroupId, SecretKey } = req.body;
 
+    // Bloqueia acessos sem a senha correta do jogo
     if (SecretKey !== CHAVE_SECRETA) {
-        return res.status(401).json({ success: false, error: "Acesso não autorizado." });
+        return res.status(401).json({ success: false, error: "Acesso não autorizado. Chave inválida." });
     }
 
     if (!UserId || !GroupId) {
-        return res.status(400).json({ success: false, error: "Dados incompletos." });
+        return res.status(400).json({ success: false, error: "Dados incompletos recebidos do Roblox." });
     }
 
     try {
